@@ -1,6 +1,6 @@
 import request from "../utils/request";
 
-const model_name = "user";
+const model_name = "constant";
 
  const pageList = params => {
     return request({
@@ -11,23 +11,8 @@ const model_name = "user";
 };
 
 
- const doLogin = params => {
-    return request({
-        url: `/${model_name}/doLogin`,
-        method: 'post',
-        data: params
-    });
-};
 
-const logout = params => {
-    return request({
-        url: `/${model_name}/logout`,
-        method: 'post',
-        data: params
-    });
-};
-
-const add = params => {
+ const add = params => {
     return request({
         url: `/${model_name}/add`,
         method: 'post',
@@ -35,7 +20,7 @@ const add = params => {
     });
 };
 
-const update = params => {
+ const update = params => {
     return request({
         url: `/${model_name}/update`,
         method: 'put',
@@ -43,7 +28,7 @@ const update = params => {
     });
 };
 
-const del = id => {
+ const del = id => {
     return request({
         url: `/${model_name}/delete/${id}`,
         method: 'delete',
@@ -60,8 +45,6 @@ const del = id => {
 
  export default {
     pageList,
-    doLogin,
-     logout,
     add,
     update,
     del,

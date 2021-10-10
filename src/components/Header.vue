@@ -44,10 +44,14 @@
 <script>
 import { computed, onMounted,ref } from "vue";
 import { useStore } from "vuex";
+import { ElMessage } from "element-plus";
 import { useRouter } from "vue-router";
+import userApi from "../api/user";
+import localcache from "../utils/localcache";
+
 export default {
     setup() {
-        const username = localStorage.getItem("ms_username");
+        const username = localcache.getUserInfo().username;
         const message = 2;
 
         const store = useStore();
@@ -67,14 +71,20 @@ export default {
         const router = useRouter();
         const handleCommand = (command) => {
             if (command == "loginout") {
-                localStorage.removeItem("ms_username");
-                router.push("/login");
+              let userInfo = localcache.getUserInfo();
+                userApi.logout({username:userInfo.username}).then((res)=>{
+                  if(res.code === 200){
+                    router.push("/login");
+                  } else {
+                    ElMessage.error(res.message);
+                  }
+                }).catch(() => {
+                  ElMessage.error("登出失败");
+                })
             } else if (command == "personal") {
                 router.push("/personal");
             }
         };
-
-
 
         return {
             username,

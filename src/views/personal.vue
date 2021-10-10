@@ -66,13 +66,14 @@ import { reactive, ref } from "vue";
 import VueCropper from "vue-cropperjs";
 import "cropperjs/dist/cropper.css";
 import avatar from "../assets/img/img.jpg";
+import localcache from "../utils/localcache";
 export default {
     name: "user",
     components: {
         VueCropper,
     },
     setup() {
-        const name = localStorage.getItem("ms_username");
+        const name = localcache.getUserInfo().username;
         const form = reactive({
             old: "",
             new: "",

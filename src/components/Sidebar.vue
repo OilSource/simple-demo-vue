@@ -41,22 +41,18 @@
 import {computed, reactive, watch} from "vue";
 import { useStore } from "vuex";
 import { useRoute } from "vue-router";
-import menuApi from "../api/menu";
-import {ElMessage} from "element-plus";
+import localcache from "../utils/localcache";
 
 export default {
     setup() {
         const items = reactive({list:[]});
-      const getData = ()=>{
-        menuApi.tree().then((res)=>{
-          if(res.code === 200){
-            items.list = res.data;
-          } else {
-            ElMessage.error("获取菜单树失败！");
-          }
-        })
+      const initTree = ()=>{
+        let localUserInfo = localcache.getUserInfo();
+        if(localUserInfo){
+          items.list = localUserInfo.menus;
+        }
       }
-      getData();
+      initTree();
 
 
         // const items = [
@@ -163,7 +159,7 @@ export default {
 
         return {
             items,
-            getData,
+            initTree,
             onRoutes,
             collapse,
         };

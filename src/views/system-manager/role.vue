@@ -52,8 +52,8 @@
                    show-checkbox
                    node-key="id"
                    default-expand-all
-                   :expand-on-click-node="false"
-                   :default-checked-keys="authorityForm.menuIdList"
+                   :expand-on-click-node="true"
+                   @check="checkChange"
           >
             <template #default="{ node, data }">
             <span class="custom-tree-node">
@@ -127,8 +127,7 @@ export default {
         const authorityData = ref([]);
         const authorityRef =  ref(null);
         const authorityForm = reactive({
-          roleId:null,
-          menuIdList:[]
+          roleId:null
         })
         // 获取表格数据
         const getData = () => {
@@ -147,13 +146,23 @@ export default {
         const getTreeData = (roleId)=>{
           menuApi.roleTree(roleId).then((res)=>{
             if(res.code === 200){
-              authorityForm.roleId = res.data.roleId;
-              authorityForm.menuIdList = res.data.menuIdList;
               authorityData.value = res.data.tree;
+              authorityForm.roleId = res.data.roleId;
+              authorityVisible.value = true;
+              setTimeout(()=>{
+                let list = res.data.menuIdList;
+                for(let i in list){
+                  const node = authorityRef.value.getNode(list[i]);
+                  node.checked =true;
+                  setNode(node);
+                }
+                console.log(authorityRef.value.getCheckedKeys())
+              },100)
+
             } else {
               ElMessage.error("获取菜单树失败！");
             }
-            authorityVisible.value = true;
+
           })
         }
 
@@ -257,8 +266,7 @@ export default {
         };
 
         const doAuthority = () =>{
-          authorityForm.menuIdList = authorityRef.value.getCheckedKeys();
-          roleApi.authority(authorityForm).then((res)=>{
+          roleApi.authority({roleId:authorityForm.roleId,menuIdList:authorityRef.value.getCheckedKeys()}).then((res)=>{
             if(res.code === 200){
               authorityVisible.value = false;
               ElMessage.success("角色授权成功！")
@@ -267,7 +275,40 @@ export default {
             }
           });
         };
-
+        const checkChange = (data) => {
+          const node = authorityRef.value.getNode(data.id);
+          setNode(node);
+        };
+        const setNode = (node)=>{
+          if(node.checked){
+            setParentNode(node);
+          } else {
+            if(node.parent){
+              let checkedNode = node.parent.childNodes.find(item => item.checked);
+              if(null!== checkedNode && undefined !== checkedNode){
+                node.parent.checked = true;
+              }
+            }
+            setChildrenNode(node);
+          }
+        }
+        const setParentNode = (node) => {
+          if(node.parent){
+            for(let key in node){
+              if(key === 'parent'){
+                node[key].checked = true;
+                setParentNode(node[key])
+              }
+            }
+          }
+        }
+        const setChildrenNode = (node) =>{
+          let len = node.childNodes.length;
+          for(let i =0;i<len;i++){
+            node.childNodes[i].checked = false;
+            setChildrenNode(node.childNodes[i])
+          }
+        }
         return {
             query,
             tableData,
@@ -290,7 +331,11 @@ export default {
             changeState,
             getTreeData,
             openAuthorityDialog,
-            doAuthority
+            doAuthority,
+            checkChange,
+            setNode,
+            setParentNode,
+            setChildrenNode,
         };
     },
 };

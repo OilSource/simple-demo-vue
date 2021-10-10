@@ -9,12 +9,12 @@
             </li>
         </ul>
         <div class="tags-close-box">
-            <el-dropdown @command="handleTags" placement="bottom-start">
+            <el-dropdown @command="handleTags" placement="bottom-start" size="small">
                 <el-button size="mini" type="text">
                     <i class="el-icon-arrow-down el-icon--right"></i>
                 </el-button>
                 <template #dropdown>
-                    <el-dropdown-menu size="small">
+                    <el-dropdown-menu >
                         <el-dropdown-item command="other">关闭其他</el-dropdown-item>
                         <el-dropdown-item command="all">关闭所有</el-dropdown-item>
                     </el-dropdown-menu>

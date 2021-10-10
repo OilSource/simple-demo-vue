@@ -2,18 +2,14 @@
     <div>
         <div class="container">
             <div class="handle-box">
-                <el-select v-model="query.remark" size="mini" placeholder="备注" class="handle-select mr10">
-                    <el-option key="1" label="广东省" value="广东省"></el-option>
-                    <el-option key="2" label="湖南省" value="湖南省"></el-option>
-                </el-select>
-                <el-input v-model="query.username"  size="mini" placeholder="用户名" class="handle-input mr10"></el-input>
+                <el-input v-model="query.constKey"  size="mini" placeholder="常量键" class="handle-input mr10"></el-input>
                 <el-button type="primary" size="mini" icon="el-icon-search" @click="handleSearch">搜索</el-button>
                 <el-button type="success" size="mini" icon="el-icon-plus" @click="handleAdd">添加</el-button>
             </div>
             <el-table :cell-style="{padding:'0'}" :header-cell-style="{padding:'2px'}" :data="tableData" border class="table" ref="multipleTable" header-cell-class-name="table-header">
                 <el-table-column prop="id" label="ID" width="55" align="center"></el-table-column>
-                <el-table-column prop="username" label="用户名" align="center"></el-table-column>
-              <el-table-column prop="roleName" label="角色名称" align="center"></el-table-column>
+                <el-table-column prop="constKey" label="常量键" align="center"></el-table-column>
+              <el-table-column prop="constValue" label="常量值" align="center"></el-table-column>
                 <el-table-column prop="creator" label="创建人"  align="center"></el-table-column>
                 <el-table-column prop="createTime" label="创建时间" align="center"  width="180"></el-table-column>
                 <el-table-column prop="updater" label="创建人" align="center"></el-table-column>
@@ -22,7 +18,7 @@
                 <el-table-column label="状态" align="center" width="70">
                     <template #default="scope">
                         <el-switch
-                            v-model="scope.row.userState"
+                            v-model="scope.row.constStatus"
                             active-color="#13ce66"
                             inactive-color="#ff4949"
                             :active-value="1"
@@ -47,20 +43,12 @@
 
         <!-- 编辑弹出框 -->
         <el-dialog title="编辑" v-model="editVisible" width="35%" >
-            <el-form label-width="90px"  :rules="rules" ref="editUserForm" :model="form" class="user__form">
-                <el-form-item label="用户名" prop="username">
-                    <el-input v-model="form.username" disabled  size="mini"></el-input>
+            <el-form label-width="90px"  :rules="rules" ref="editConstForm" :model="form" class="const__form">
+                <el-form-item label="常量键" prop="constKey">
+                    <el-input v-model="form.constKey" disabled  size="mini"></el-input>
                 </el-form-item>
-              <el-form-item label="角色" prop="roleId">
-                <el-select filterable v-model="form.roleId"  placeholder="请选择"  size="mini" style="width: 100%">
-                  <el-option v-for="item in roleList" :value="item.id" :key="item.roleName" :label="item.roleName"/>
-                </el-select>
-              </el-form-item>
-              <el-form-item label="密码"  prop="pwd">
-                <el-input type="password" v-model="form.pwd" size="mini"></el-input >
-              </el-form-item>
-              <el-form-item label="确认密码"  prop="confirmPwd">
-                <el-input type="password"  v-model="form.confirmPwd" size="mini"></el-input>
+              <el-form-item label="常量值"  prop="constValue">
+                <el-input type="constValue" v-model="form.constValue" size="mini"></el-input >
               </el-form-item>
                 <el-form-item label="备注" prop="remark">
                     <el-input v-model="form.remark" size="mini"></el-input>
@@ -74,21 +62,13 @@
             </template>
         </el-dialog>
       <!-- 添加弹出框 -->
-      <el-dialog title="新增用户"  v-model="addVisible" width="35%" >
-        <el-form label-width="90px" :rules="rules" ref="addUserForm" :model="addForm" class="user__form">
-          <el-form-item label="用户名" prop="username">
-            <el-input v-model="addForm.username" size="mini" ></el-input>
+      <el-dialog title="新增常量"  v-model="addVisible" width="35%" >
+        <el-form label-width="90px" :rules="rules" ref="addConstantForm" :model="addForm" class="const__form">
+          <el-form-item label="常量键" prop="constKey">
+            <el-input v-model="addForm.constKey" size="mini" ></el-input>
           </el-form-item>
-          <el-form-item label="角色"  prop="roleId">
-            <el-select filterable v-model="addForm.roleId"  placeholder="请选择"  size="mini" style="width: 100%">
-              <el-option v-for="item in roleList" :value="item.id" :key="item.roleName" :label="item.roleName"/>
-            </el-select>
-          </el-form-item>
-          <el-form-item label="密码"  prop="pwd">
-            <el-input type="password"  v-model="addForm.pwd" size="mini"></el-input>
-          </el-form-item>
-          <el-form-item label="确认密码"  prop="confirmPwd">
-            <el-input type="password" v-model="addForm.confirmPwd" size="mini"></el-input>
+          <el-form-item label="常量值"  prop="constValue">
+            <el-input   v-model="addForm.constValue" size="mini"></el-input>
           </el-form-item>
           <el-form-item label="备注"  prop="remark">
             <el-input v-model="addForm.remark" size="mini"></el-input>
@@ -107,15 +87,13 @@
 <script>
 import { ref, reactive } from "vue";
 import { ElMessage, ElMessageBox } from "element-plus";
-import userApi from "../../api/user";
-import roleApi from "../../api/role";
+import constantApi from "../../api/constant";
 
 export default {
-    name: "user-manage",
+    name: "constant-manage",
     setup() {
         const query = reactive({
-            remark: "",
-            username: "",
+            constKey: "",
             pageNum: 1,
             pageSize: 10,
         });
@@ -124,69 +102,48 @@ export default {
         //表格新增时弹框
         const addVisible = ref(false);
         const addForm = reactive({
-          username:"",
-          pwd:"",
-          confirmPwd:"",
+          constKey:"",
+          constValue:"",
           remark:"",
-          roleId:null,
         });
 
         // 表格编辑时弹窗
         const editVisible = ref(false);
         const form = reactive({
           id:null,
-          username: "",
+          constKey: "",
           remark: "",
-          pwd:"",
-          confirmPwd:"",
-          roleId:null
+          constValue:"",
         });
-        //角色列表
-        const roleList = ref([]);
-        const addUserForm = ref(null);
-        const editUserForm = ref(null);
+        const addConstantForm = ref(null);
+        const editConstForm = ref(null);
         const rules = {
-          username: [
+          constKey: [
             {
               required: true,
-              message: "请输入用户名",
+              message: "请输入常量键",
               trigger: "blur",
             },
           ],
-          pwd: [
-            { required: true, message: "请输入密码", trigger: "blur" },
-          ],
-          confirmPwd: [
-            { required: true, message: "请输入确认密码", trigger: "blur" },
-          ],
-          roleId: [
-            { required: true, message: "请选择", trigger: "blur" },
+          constValue: [
+            { required: true, message: "请输入常量值", trigger: "blur" },
           ],
         };
         // 获取表格数据
         const getData = () => {
-          userApi.pageList(query).then((res) => {
+          constantApi.pageList(query).then((res) => {
                 if(res.code === 200){
                   tableData.value = res.data.rows;
                   pageTotal.value = res.data.total;
                 } else {
-                  ElMessage.error("获取用户列表失败！")
+                  ElMessage.error("获取用户列表失败！");
                 }
 
-            });
+            }).catch((e)=>{
+            ElMessage.error("获取用户列表失败！");
+          });
         };
 
-        //获取角色数据
-        const getRoleList = ()=>{
-          roleApi.list().then((res)=>{
-            if(res.code === 200){
-              roleList.value = res.data;
-            } else {
-              ElMessage.error("获取角色列表失败！")
-            }
-          })
-        }
-        getRoleList();
         getData();
 
         // 查询操作
@@ -207,7 +164,7 @@ export default {
                 type: "warning",
             })
                 .then(() => {
-                  userApi.del(row.id).then((res)=>{
+                  constantApi.del(row.id).then((res)=>{
                       if(res.code === 200){
                         ElMessage.success("删除成功");
                         getData();
@@ -235,9 +192,9 @@ export default {
             editVisible.value = true;
         };
         const saveEdit = () => {
-          addUserForm.value.validate((valid) => {
+          addConstantForm.value.validate((valid) => {
             if(valid){
-              userApi.add(addForm).then((res)=>{
+              constantApi.add(addForm).then((res)=>{
                 if(res.code === 200){
                   getData();
                   ElMessage.success(res.message);
@@ -247,14 +204,14 @@ export default {
                 addVisible.value = false;
               }).catch((e)=>{
                 console.error(e);
-                ElMessage.error("添加用户异常");
+                ElMessage.error("添加常量异常");
               });
             }
           })
         };
 
         const updateEdit = () => {
-          userApi.update(form).then((res)=>{
+          constantApi.update(form).then((res)=>{
             if(res.code === 200){
               getData();
               ElMessage.success(res.message);
@@ -263,14 +220,14 @@ export default {
             }
             editVisible.value = false;
           }).catch((e) =>{
-            ElMessage.error("用户更新失败！");
+            ElMessage.error("常量更新失败！");
           });
 
         };
 
         const changeState = (row) =>{
           if(row.id){
-            userApi.updateState({id:row.id,userState:row.userState}).then((res)=>{
+            constantApi.updateState({id:row.id,constStatus:row.constStatus}).then((res)=>{
               if(res.code === 200){
                 getData();
                 ElMessage.success(res.message);
@@ -289,10 +246,9 @@ export default {
             addForm,
             editVisible,
             form,
-            roleList,
             rules,
-            addUserForm,
-            editUserForm,
+            addConstantForm,
+            editConstForm,
             handleSearch,
             handlePageChange,
             handleDelete,
@@ -301,7 +257,6 @@ export default {
             saveEdit,
             updateEdit,
             changeState,
-            getRoleList
         };
     },
 };
@@ -333,7 +288,7 @@ export default {
 .el-form-item{
   margin-bottom: 3px;
 }
-.user__form /deep/ .el-form-item__error {
+.const__form /deep/ .el-form-item__error {
   top: 80%!important;
 }
 </style>

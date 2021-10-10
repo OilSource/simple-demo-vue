@@ -8,7 +8,7 @@
                 :data="dataSource.list"
                 node-key="id"
                 default-expand-all
-                :expand-on-click-node="false"
+                :expand-on-click-node="true"
                 :filter-node-method="filterNode"
             >
               <template #default="{ node, data }">
@@ -244,7 +244,7 @@ export default {
         editVisible,
         openEditDialog,
         editMenu,
-        handleDelete
+        handleDelete,
       }
     },
 };

@@ -33,6 +33,9 @@ import { useStore } from "vuex";
 import { useRouter } from "vue-router";
 import { ElMessage } from "element-plus";
 import userApi from "../api/user";
+import {cloneDeep} from 'lodash';
+import encryptor from '../utils/encrypt';
+import localcache from "../utils/localcache";
 
 export default {
     setup() {
@@ -58,16 +61,20 @@ export default {
         const submitForm = () => {
             login.value.validate((valid) => {
                 if (valid) {
-                  userApi.doLogin(param).then((res) => {
+                  let submitForm = cloneDeep(param);
+                  encryptor.comEncrypt(submitForm);
+                  userApi.doLogin(submitForm).then((res) => {
                       if(res.code == 200){
                         ElMessage.success(res.message);
-                        localStorage.setItem("ms_username", param.username);
+                        localcache.setUserInfo(res.data);
                         router.push("/");
                       } else {
                         ElMessage.error(res.message);
                         return false;
                       }
 
+                    }).catch((e)=>{
+                      ElMessage.error("登录失败");
                     });
 
                 } else {
