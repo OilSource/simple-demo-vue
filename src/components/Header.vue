@@ -74,12 +74,14 @@ export default {
               let userInfo = localcache.getUserInfo();
                 userApi.logout({username:userInfo.username}).then((res)=>{
                   if(res.code === 200){
+                    localcache.clearUserInfo();
                     router.push("/login");
                   } else {
                     ElMessage.error(res.message);
                   }
                 }).catch(() => {
-                  ElMessage.error("登出失败");
+                  localcache.clearUserInfo();
+                  router.push("/login");
                 })
             } else if (command == "personal") {
                 router.push("/personal");

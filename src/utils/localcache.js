@@ -9,6 +9,10 @@ const localcache = {
     },
     getToken: ()=>{
         return localStorage.getItem('token')
+    },
+    clearUserInfo:()=>{
+        localStorage.removeItem('userInfo');
+        localStorage.removeItem('token');
     }
 };
 
