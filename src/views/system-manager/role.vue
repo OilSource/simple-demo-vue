@@ -2,11 +2,7 @@
     <div>
         <div class="container">
             <div class="handle-box">
-                <el-select v-model="query.address" size="mini" placeholder="备注" class="handle-select mr10">
-                    <el-option key="1" label="广东省" value="广东省"></el-option>
-                    <el-option key="2" label="湖南省" value="湖南省"></el-option>
-                </el-select>
-                <el-input v-model="query.username"  size="mini" placeholder="用户名" class="handle-input mr10"></el-input>
+                <el-input v-model="query.roleName"  size="mini" placeholder="角色名称" class="handle-input mr10"></el-input>
                 <el-button type="primary" size="mini" icon="el-icon-search" @click="handleSearch">搜索</el-button>
                 <el-button type="success" size="mini" icon="el-icon-plus" @click="handleAdd">添加</el-button>
             </div>
@@ -116,7 +112,6 @@ export default {
     name: "role-manage",
     setup() {
         const query = reactive({
-            remark: "",
             roleName: "",
             pageNum: 1,
             pageSize: 10,
